@@ -1,12 +1,7 @@
 import requests
 
-accu_api_key = 'icFYwDHcpHbfR1ZGMBZ4HAdAdvkEgmsg'
-
-start = ''
-end = ''
-
 class Weather:
-    def __init__(self, accu_api_key, loc_key):
+    def __init__(self, loc_key, accu_api_key):
         self.api_key = accu_api_key
         self.loc_key = loc_key
         self.weather = {}
@@ -27,7 +22,7 @@ class Weather:
             self.weather['temperature'] = data[0]['Temperature']['Metric']['Value']
             self.weather['humidity'] = data[0]['RelativeHumidity']
             self.weather['wind_speed'] = data[0]['Wind']['Speed']['Metric']['Value']
-
+            
             return data
         else:
             return None
@@ -54,7 +49,7 @@ class Weather:
     
     def check_bad_weather(self):
         ''' 
-        функция для оценки неблагоприятных погодных условий 
+        Функция для оценки неблагоприятных погодных условий 
         '''
         weather = self.weather
         warnings = []
@@ -70,6 +65,3 @@ class Weather:
             return "Неблагоприятные погодные условия: " + " ".join(warnings)
         else:
             return "Погодные условия благоприятные."
-
-tochka = Weather(accu_api_key, '294021')
-print(tochka.check_bad_weather())

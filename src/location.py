@@ -5,13 +5,14 @@ class Location:
         self.city = city
         self.accu = accu_api_key
         self.ya = ya_api_key
-        self.lat = str()
-        self.lon = str()
+        self.lat = ''
+        self.lon = ''
     
     def ya_request(self, city: str):
         params = {'apikey': self.ya,
                   'geocode': city,
                   'lang': 'ru_RU',
+                  'kind': 'locality',
                   'format': 'json'}
         
         response = requests.get('https://geocode-maps.yandex.ru/1.x', params=params)
@@ -44,6 +45,7 @@ class Location:
         '''
         Возвращает location key по координатам
         '''
+        self.get_coords()
         params = {'apikey': self.accu,
                   'q': f'{self.lat},{self.lon}'}
         response = requests.get('http://dataservice.accuweather.com/locations/v1/cities/geoposition/search', params = params)
