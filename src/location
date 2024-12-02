@@ -1,0 +1,54 @@
+import requests
+
+class Location:
+    def __init__(self, accu_api_key, ya_api_key):
+        self.ya = ya_api_key
+        self.accu = accu_api_key
+    
+    def get_key(self, lat, lon):
+        '''
+        Возвращает location key по координатам
+        '''
+        params = {'apikey': self.accu,
+                  'q': f'{lat},{lon}'}
+        response = requests.get('http://dataservice.accuweather.com/locations/v1/cities/geoposition/search', params = params)
+
+        if response.status_code != 200 and response.status_code != 201:
+            print('Ошибка при получении данных:', response.json())
+            return
+        
+        return response.json()['Key']
+    
+    def ya_request(self, city: str):
+        params = {'apikey': self.ya,
+                  'geocode': city,
+                  'lang': 'ru_RU',
+                  'kind': 'locality',
+                  'format': 'json'}
+        
+        response = requests.get('https://geocode-maps.yandex.ru/1.x', params=params)
+
+        if response.status_code != 200:
+            print('Ошибка при получении данных:', response.json())
+            return None
+
+        return response.json()
+    
+    def get_coords(self, city: str):
+        '''
+        Возвращает координаты города
+        '''
+        data = self.ya_request(city)
+
+        if data:
+            try:
+                coords = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
+                lon, lat = coords.split(' ')
+                return str(lon), str(lat)
+            except KeyError:
+                print('Не удалось получить координаты')
+                return None, None
+        return None, None
+
+point = Location(accu_api_key, ya_api_key)
+print(point.get_coords('Москва'))
