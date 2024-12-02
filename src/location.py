@@ -1,9 +1,10 @@
 import requests
 
 class Location:
-    def __init__(self, accu_api_key, ya_api_key):
-        self.ya = ya_api_key
+    def __init__(self, city, accu_api_key, ya_api_key):
+        self.city = city
         self.accu = accu_api_key
+        self.ya = ya_api_key
         self.lat = str()
         self.lon = str()
     
@@ -11,7 +12,6 @@ class Location:
         params = {'apikey': self.ya,
                   'geocode': city,
                   'lang': 'ru_RU',
-                  'kind': 'locality',
                   'format': 'json'}
         
         response = requests.get('https://geocode-maps.yandex.ru/1.x', params=params)
@@ -22,11 +22,11 @@ class Location:
 
         return response.json()
     
-    def get_coords(self, city: str):
+    def get_coords(self):
         '''
         Возвращает координаты города
         '''
-        data = self.ya_request(city)
+        data = self.ya_request(self.city)
 
         if data:
             try:
