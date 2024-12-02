@@ -4,20 +4,8 @@ class Location:
     def __init__(self, accu_api_key, ya_api_key):
         self.ya = ya_api_key
         self.accu = accu_api_key
-    
-    def get_key(self, lat, lon):
-        '''
-        Возвращает location key по координатам
-        '''
-        params = {'apikey': self.accu,
-                  'q': f'{lat},{lon}'}
-        response = requests.get('http://dataservice.accuweather.com/locations/v1/cities/geoposition/search', params = params)
-
-        if response.status_code != 200 and response.status_code != 201:
-            print('Ошибка при получении данных:', response.json())
-            return
-        
-        return response.json()['Key']
+        self.lat = str()
+        self.lon = str()
     
     def ya_request(self, city: str):
         params = {'apikey': self.ya,
@@ -44,11 +32,24 @@ class Location:
             try:
                 coords = data['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']['Point']['pos']
                 lon, lat = coords.split(' ')
+                self.lat = lat
+                self.lon = lon
                 return str(lon), str(lat)
             except KeyError:
                 print('Не удалось получить координаты')
                 return None, None
         return None, None
+    
+    def get_key(self):
+        '''
+        Возвращает location key по координатам
+        '''
+        params = {'apikey': self.accu,
+                  'q': f'{self.lat},{self.lon}'}
+        response = requests.get('http://dataservice.accuweather.com/locations/v1/cities/geoposition/search', params = params)
 
-point = Location(accu_api_key, ya_api_key)
-print(point.get_coords('Москва'))
+        if response.status_code != 200 and response.status_code != 201:
+            print('Ошибка при получении данных:', response.json())
+            return
+        
+        return response.json()['Key']
