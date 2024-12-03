@@ -1,8 +1,8 @@
 import requests
+from src.weather import Weather
 
 class Location:
-    def __init__(self, city, accu_api_key, ya_api_key):
-        self.city = city
+    def __init__(self, accu_api_key, ya_api_key):
         self.accu = accu_api_key
         self.ya = ya_api_key
         self.lat = ''
@@ -23,11 +23,11 @@ class Location:
 
         return response.json()
     
-    def get_coords(self):
+    def get_coords(self, city: str):
         '''
         Возвращает координаты города
         '''
-        data = self.ya_request(self.city)
+        data = self.ya_request(city)
 
         if data:
             try:
@@ -41,11 +41,11 @@ class Location:
                 return None, None
         return None, None
     
-    def get_key(self):
+    def get_key(self, city: str):
         '''
         Возвращает location key по координатам
         '''
-        self.get_coords()
+        self.get_coords(city)
         params = {'apikey': self.accu,
                   'q': f'{self.lat},{self.lon}'}
         response = requests.get('http://dataservice.accuweather.com/locations/v1/cities/geoposition/search', params = params)
@@ -55,3 +55,13 @@ class Location:
             return
         
         return response.json()['Key']
+    
+    def get_weather(self, city: str):
+        '''
+        Возвращает комментарий о погодных условиях и погодные условия в городе
+        '''
+        key = self.get_key(city)
+        point = Weather(key, self.accu)
+        data = point.get_weather()
+        comment = point.check_bad_weather()
+        return (comment, data)
